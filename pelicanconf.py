@@ -29,6 +29,7 @@ SOCIAL = [
     ('github', 'https://github.com/emyller'),
     ('twitter', 'https://twitter.com/eMyller'),
     ('linkedin', 'https://www.linkedin.com/in/emyller'),
+    ('stack-overflow', 'http://stackoverflow.com/users/307511/emyller'),
 ]
 
 # Theme-specific settings
