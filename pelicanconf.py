@@ -5,7 +5,7 @@ from datetime import date
 # Author info
 AUTHOR = 'Evandro Myller'
 SITENAME = 'Evandro Myller\'s blog'
-SITEURL = ''
+SITEURL = 'http://emyller.github.io/'
 
 # Content settings
 PATH = 'content'
