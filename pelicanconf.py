@@ -3,7 +3,7 @@
 
 # Author info
 AUTHOR = 'Evandro Myller'
-SITENAME = 'emyller.github.io'
+SITENAME = 'Evandro Myller\'s blog'
 SITEURL = ''
 
 # Content settings
