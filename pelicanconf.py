@@ -32,6 +32,16 @@ SOCIAL = [
     ('stack-overflow', 'http://stackoverflow.com/users/307511/emyller'),
 ]
 
+# URLs
+ARTICLE_URL = 'posts/{date:%Y}/{slug}.html'
+ARTICLE_SAVE_AS = ARTICLE_URL
+PAGE_URL = 'pages/{date:%Y}/{slug}.html'
+PAGE_SAVE_AS = PAGE_URL
+
+# Misc
+DELETE_OUTPUT_DIRECTORY = True
+USE_FOLDER_AS_CATEGORY = False
+
 # Theme-specific settings
 SITETITLE = AUTHOR
 SITESUBTITLE = 'Python Engineer, World Explorer'
