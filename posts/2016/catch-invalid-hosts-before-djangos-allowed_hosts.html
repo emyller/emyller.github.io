@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+
+    <link rel="stylesheet" type="text/css" href="/theme/stylesheet/style.min.css">
+
+  <link rel="stylesheet" type="text/css" href="/theme/stylesheet/pygments.min.css">
+  <link rel="stylesheet" type="text/css" href="/theme/stylesheet/font-awesome.min.css">
+
+
+
+
+    <link rel="shortcut icon" href="//s.gravatar.com/avatar/1820571c2e448ff37c5843d4c8e007c3?s=200" type="image/x-icon">
+    <link rel="icon" href="//s.gravatar.com/avatar/1820571c2e448ff37c5843d4c8e007c3?s=200" type="image/x-icon">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+
+<meta name="author" content="Evandro Myller" />
+<meta name="description" content="I have been haunted all these years by the "Invalid HTTP_HOST header" error email that Django sends to its ADMINS when an user -- or a script, most likely -- tries to access the application with an invalid host header. Every day I had to mark and delete tons of alert emails ..." />
+<meta name="keywords" content="python, django, nginx, security">
+<meta property="og:site_name" content="Evandro Myller's blog"/>
+<meta property="og:title" content="Catch invalid hosts before Django's ALLOWED_HOSTS"/>
+<meta property="og:description" content="I have been haunted all these years by the "Invalid HTTP_HOST header" error email that Django sends to its ADMINS when an user -- or a script, most likely -- tries to access the application with an invalid host header. Every day I had to mark and delete tons of alert emails ..."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/posts/2016/catch-invalid-hosts-before-djangos-allowed_hosts.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-04-22 00:00:00-03:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="/author/evandro-myller.html">
+<meta property="article:section" content="Achievements"/>
+<meta property="article:tag" content="python"/>
+<meta property="article:tag" content="django"/>
+<meta property="article:tag" content="nginx"/>
+<meta property="article:tag" content="security"/>
+<meta property="og:image" content="//s.gravatar.com/avatar/1820571c2e448ff37c5843d4c8e007c3?s=200">
+  <title>Evandro Myller's blog &ndash; Catch invalid hosts before Django's ALLOWED_HOSTS</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="">
+        <img src="//s.gravatar.com/avatar/1820571c2e448ff37c5843d4c8e007c3?s=200" alt="Evandro Myller" title="Evandro Myller">
+      </a>
+      <h1><a href="">Evandro Myller</a></h1>
+      <p>Python Engineer, World Explorer</p>
+      <nav>
+        <ul class="list">
+        </ul>
+      </nav>
+      <ul class="social">
+        <li><a class="sc-github" href="https://github.com/emyller" target="_blank"><i class="fa fa-github"></i></a></li>
+        <li><a class="sc-twitter" href="https://twitter.com/eMyller" target="_blank"><i class="fa fa-twitter"></i></a></li>
+        <li><a class="sc-linkedin" href="https://www.linkedin.com/in/emyller" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+        <li><a class="sc-stack-overflow" href="http://stackoverflow.com/users/307511/emyller" target="_blank"><i class="fa fa-stack-overflow"></i></a></li>
+      </ul>
+    </div>
+  </aside>
+  <main>
+    <nav>
+      <a href="">Home</a>
+    </nav>
+
+<article>
+  <header>
+    <h1 id="catch-invalid-hosts-before-djangos-allowed_hosts">Catch invalid hosts before Django's ALLOWED_HOSTS</h1>
+    <p>Posted on Fri 22 April 2016 in <a href="/category/achievements.html">Achievements</a></p>
+  </header>
+  <div>
+    <p>I have been haunted all these years by the "Invalid HTTP_HOST header" error
+email that <a href="https://docs.djangoproject.com/en/1.9/howto/error-reporting/#server-errors">Django sends to its <code>ADMINS</code></a> when an user -- or a script, most
+likely -- tries to access the application with an invalid host header.</p>
+<p>Every day I had to mark and delete tons of alert emails. What annoying. But
+then I researched about it and found an <a href="http://stackoverflow.com/questions/17149435/avoiding-djangos-500-error-for-not-allowed-host-with-nginx">answer like this one</a>. Happy as I
+was, I immediately wrote those settings into my nginx configuration file and
+boom! Next day I still had tons of emails to mark and delete. After testing
+some other configurations based on the same idea, I then accepted that as a
+daily burden. How frustrating.</p>
+<p>But that had to die. Technology exists for a reason: solve problems. Reading
+the <a href="http://nginx.org/en/docs/http/ngx_http_rewrite_module.html#if">nginx's <code>ngx_http_rewrite_module</code> documentation</a>, I found out the <code>if</code>
+statement. That was just too obvious, but no one mentioned it. Perhaps due to
+<a href="https://www.nginx.com/resources/wiki/start/topics/depth/ifisevil/">its caveats</a>. But hey, with a bit of care, it worked flawlessly:</p>
+<div class="highlight"><pre><span></span><span class="k">location</span> <span class="s">/</span> <span class="p">{</span>
+    <span class="c1"># Handle unhandled vhosts</span>
+    <span class="kn">if</span> <span class="s">(</span><span class="nv">$host</span> <span class="s">!=</span> <span class="s">&#39;my-undisclosed-hostname.com&#39;)</span> <span class="p">{</span>
+        <span class="kn">return</span> <span class="mi">400</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kn">include</span> <span class="s">fastcgi_params</span><span class="p">;</span>
+    <span class="kn">include</span> <span class="s">proxy_params</span><span class="p">;</span>
+    <span class="c1"># ...</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Then I ran cURL with a custom Host header and the <code>if</code> statement proved to be
+effective, finally.</p>
+<div class="highlight"><pre><span></span>$ curl -IH &#39;Host: something-else&#39; http://my-undisclosed-hostname.com
+HTTP/1.1 400 Bad Request
+Server: nginx/1.8.1
+Content-Type: text/html
+Content-Length: 181
+Connection: close
+</pre></div>
+
+
+<p>Now I can get to spend one more minute every day with something else, yay.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/python.html">python</a>
+      <a href="/tag/django.html">django</a>
+      <a href="/tag/nginx.html">nginx</a>
+      <a href="/tag/security.html">security</a>
+    </p>
+  </div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'emyller';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</article>
+
+    <footer>
+        <p>&copy; Evandro Myller 2016</p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-76793413-1', 'auto');
+  ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Catch invalid hosts before Django's ALLOWED_HOSTS",
+  "headline": "Catch invalid hosts before Django's ALLOWED_HOSTS",
+  "datePublished": "2016-04-22 00:00:00-03:00",
+  "dateModified": "",
+  "author": {
+    "@type": "Person",
+    "name": "Evandro Myller",
+    "url": "/author/evandro-myller.html"
+  },
+  "image": "//s.gravatar.com/avatar/1820571c2e448ff37c5843d4c8e007c3?s=200",
+  "url": "/posts/2016/catch-invalid-hosts-before-djangos-allowed_hosts.html",
+  "description": "I have been haunted all these years by the "Invalid HTTP_HOST header" error email that Django sends to its ADMINS when an user -- or a script, most likely -- tries to access the application with an invalid host header. Every day I had to mark and delete tons of alert emails ..."
+}
+</script></body>
+</html>
