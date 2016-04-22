@@ -23,4 +23,8 @@ AUTHOR_FEED_RSS = None
 LINKS = []
 
 # Social widget
-SOCIAL = []
+SOCIAL = [
+    ('github', 'https://github.com/emyller'),
+    ('twitter', 'https://twitter.com/eMyller'),
+    ('linkedin', 'https://www.linkedin.com/in/emyller'),
+]
