@@ -1,0 +1,5 @@
+# A static site generator
+pelican==3.6.3
+
+# Support for the markdown syntax
+markdown==2.6.6

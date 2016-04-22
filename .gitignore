@@ -1,0 +1,6 @@
+# Python byte-compiled files
+__pycache__/
+*.pyc
+
+# Pelican output dir
+/output/
