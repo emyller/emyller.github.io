@@ -39,3 +39,4 @@ SITELOGO = '//s.gravatar.com/avatar/1820571c2e448ff37c5843d4c8e007c3?s=200'
 COPYRIGHT_YEAR = date.today().year
 MAIN_MENU = True
 FAVICON = SITELOGO
+DISQUS_SITENAME = 'emyller'
